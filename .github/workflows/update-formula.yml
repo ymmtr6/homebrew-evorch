@@ -1,0 +1,62 @@
+name: Update Formula
+
+on:
+  repository_dispatch:
+    types: [evorch-release]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    name: Update evorch formula
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Formula を更新
+        env:
+          VERSION: ${{ github.event.client_payload.version }}
+          ARM64_SHA256: ${{ github.event.client_payload.arm64_sha256 }}
+          X86_64_SHA256: ${{ github.event.client_payload.x86_64_sha256 }}
+        run: |
+          python3 - <<'EOF'
+          import re, os
+
+          version   = os.environ["VERSION"].lstrip("v")
+          arm64     = os.environ["ARM64_SHA256"]
+          x86_64    = os.environ["X86_64_SHA256"]
+
+          with open("Formula/evorch.rb") as f:
+              content = f.read()
+
+          content = re.sub(r'version "\S+"', f'version "{version}"', content)
+          content = re.sub(
+              r'(darwin-arm64\.tar\.gz"\n\s+sha256 ")[^"]*"',
+              lambda m: m.group(1) + arm64 + '"',
+              content,
+          )
+          content = re.sub(
+              r'(darwin-x86_64\.tar\.gz"\n\s+sha256 ")[^"]*"',
+              lambda m: m.group(1) + x86_64 + '"',
+              content,
+          )
+
+          with open("Formula/evorch.rb", "w") as f:
+              f.write(content)
+
+          print(f"Updated to {version}")
+          print(f"  arm64:  {arm64}")
+          print(f"  x86_64: {x86_64}")
+          EOF
+
+      - name: コミット & プッシュ
+        env:
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/evorch.rb
+          git commit -m "chore: update evorch to ${VERSION}"
+          git push
