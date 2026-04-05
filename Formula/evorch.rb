@@ -1,8 +1,8 @@
 class Evorch < Formula
   desc "Event-driven orchestration CLI: Schedule → Judge → Act"
   homepage "https://github.com/ymmtr6/Evorch"
-  url "https://github.com/ymmtr6/Evorch/archive/refs/tags/v0.1.4.tar.gz"
-  sha256 "6942ca3b4a9f7467573982549e1060ae7d571cd897fb3368819f8504c43c87ce"
+  url "https://github.com/ymmtr6/Evorch/archive/refs/tags/v0.1.5.tar.gz"
+  sha256 "3ed4fbcc65ec5e1e8d786a8fb6d182db31c61ff5cf498a3dd52f08e0cee96fc2"
   license "MIT"
 
   depends_on "node"
